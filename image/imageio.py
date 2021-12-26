@@ -8,7 +8,6 @@ https://docs.opencv.org/4.5.3/d5/d0f/tutorial_py_gradients.html
 import logging
 import os
 
-from numpy.lib.type_check import imag
 os.environ['TF_CPP_MIN_LOG_LEVEL'] = '3'  # FATAL
 logging.getLogger('tensorflow').setLevel(logging.FATAL)
 
@@ -17,16 +16,10 @@ import numpy as np
 import PIL
 import sys
 
-from functools import total_ordering
-from time import sleep
-from helper.helper_func import performance
-from numpy.core.fromnumeric import nonzero
 from tensorflow.keras.models import load_model
 
 
 model = load_model("image/number_recognition.h5")
-
-IMG_PADDING = 30
 
 # remove truncuation
 np.set_printoptions(threshold=sys.maxsize)
@@ -36,11 +29,12 @@ def draw_solved(input_image, board):
     """
     Draws the completed sudoku onto input image, returns array
     """
-    image = PIL.Image.open("solved.png")
-    font = PIL.ImageFont.truetype("arial.ttf", 26)
-    draw = PIL.ImageDraw.Draw(image)
-    draw.text((130,125), "0", (255,255,255), font=font)
-    image.save("output1.jpg")
+    # TEST CODE    
+    # image = PIL.Image.open("solved.png")
+    # font = PIL.ImageFont.truetype("arial.ttf", 26)
+    # draw = PIL.ImageDraw.Draw(image)
+    # draw.text((130,125), "0", (255,255,255), font=font)
+    # image.save("output1.jpg")
     raise NotImplementedError
 
 
