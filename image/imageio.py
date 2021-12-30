@@ -45,6 +45,8 @@ def draw_solved(input_image, solved_board):
     for c in coord_cells:
         draw.text(c[0], str(solved_board[c[1]]), "green", font=font) 
     
+    image.save("output.png")
+    
     return image
 
 def coordinates(image):
