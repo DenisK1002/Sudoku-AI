@@ -4,18 +4,19 @@ Module handles image Input/Output
 Referring to these sources: 
 https://docs.opencv.org/4.5.3/d5/d0f/tutorial_py_gradients.html
 """
+
 # turn off tf logging
 import logging
 import os
-
 os.environ['TF_CPP_MIN_LOG_LEVEL'] = '3'  # FATAL
 logging.getLogger('tensorflow').setLevel(logging.FATAL)
 
 import cv2 as cv
 import numpy as np
-import PIL
+from PIL import Image, ImageFont, ImageDraw
 import sys
-
+from math import floor
+from helper.helper_func import performance
 from tensorflow.keras.models import load_model
 
 
@@ -25,19 +26,63 @@ model = load_model("image/number_recognition.h5")
 np.set_printoptions(threshold=sys.maxsize)
 
 
-def draw_solved(input_image, board):
+def draw_solved(input_image, solved_board):
     """
     Draws the completed sudoku onto input image, returns array
     """
-    # TEST CODE    
-    # image = PIL.Image.open("solved.png")
-    # font = PIL.ImageFont.truetype("arial.ttf", 26)
-    # draw = PIL.ImageDraw.Draw(image)
-    # draw.text((130,125), "0", (255,255,255), font=font)
-    # image.save("output1.jpg")
-    raise NotImplementedError
+    input_image = cv.imread(input_image, 0)
+    input_image = threshold_filter(input_image, 60)
+    input_image = crop_image(input_image, 0)
+    solved_board = np.ndarray.flatten(np.array(solved_board))
+    
+    # coordinates of cells
+    coord_cells = coordinates(input_image)
+    
+    image = Image.fromarray(input_image) 
+    image = image.convert("RGB")
+    font = ImageFont.truetype("arial.ttf", 48)
+    draw = ImageDraw.Draw(image)
+    for c in coord_cells:
+        draw.text(c[0], str(solved_board[c[1]]), "green", font=font) 
+    
+    return image
 
+def coordinates(image):
+    """
+    Return coordinates of empty cells in image.
+    ((tuple, cord), index)
+    """
+    sudoku_cells = cells(image, cell_size(image))
+    
+    coords = []
+    for i, cell in enumerate(sudoku_cells):
+        cell_number = number(cell)
+        
+        if cell_number == None:
+            coords.append([center(image, i), i])
+    
+    return coords
+    
+def center(image, index):
+    """
+    Returns center coordinates of cell
+    """
+    
+    height, width  = cell_size(image)
 
+    w = index / 9
+    
+    if w >= 1:
+        w = w - floor(w)
+        
+    w = w*10
+    w = floor(w)
+    
+    coords = (w * width + width//2, height * (index//9) * 0.95 + height//2)
+    
+    return coords
+
+@performance
 def read_image(input_image_path):
     """
     Read input image and return array containing prefilled numbers
@@ -50,7 +95,7 @@ def read_image(input_image_path):
 
     img = crop_image(img, 0)
     sudoku_cells = cells(img, cell_size(img))
-
+    
     # each cell's image to number converting using cnn model
     numbers = []
     for cell in sudoku_cells:
@@ -69,8 +114,8 @@ def number(cell):
     """
     
     cell = threshold_filter(cell, 170)
-    cell = crop_image(cell, 30)
-    
+    cell = crop_image(cell, 20)
+   
     cell = cv.resize(cell, dsize=(28,28), interpolation=cv.INTER_CUBIC)
 
     cell = cell.astype('float32')
@@ -92,7 +137,7 @@ def number(cell):
     else:
         return None
 
-    
+
 def crop_image(image, margin):
     """
     Cropping image to the bounds of sudoku
@@ -170,15 +215,9 @@ def save(array, path):
     Saving numpy array to path as image
     """
     
-    img = PIL.Image.fromarray(array)
+    img = Image.fromarray(array)
     if img.mode != "RGB":
         img = img.convert("RGB")
         
     img.save(path)
     
-
-def center(image):
-    """
-    Returns center coordinates of image
-    """
-    raise NotImplementedError

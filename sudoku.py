@@ -238,7 +238,7 @@ class Sudoku():
             return list(assignment.keys())[-1]
             
             
-        minimum = {
+        """minimum = {
             v: len(to_array(self.domains[v]))
             for v in self.domains if v not in assignment
         }
@@ -267,7 +267,7 @@ class Sudoku():
             return sorted(degree, key=lambda d: d[1], reverse=True)[0][0]
         
         # return first element (least domains)
-        return minimum_sorted[0]
+        return minimum_sorted[0]"""
 
 
     def domain(self, var):
@@ -377,14 +377,14 @@ class Sudoku():
         return self.backtrack(assignment)
     
     
-    def draw(self, assignment_board, path):
+    @classmethod
+    def draw(cls, original_image, assignment_board):
         """
         Generate an Image of the solved sudoku.\n
-        Saves to given path
         """
         
-        image = imageio.draw_solved()
+        image = imageio.draw_solved(original_image, assignment_board)
         
-        raise NotImplementedError
+        return image
     
     
